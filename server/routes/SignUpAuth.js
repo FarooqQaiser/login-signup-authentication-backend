@@ -5,52 +5,63 @@ import path from "path";
 
 const router = express.Router();
 
-// ✅ Path to your db.json file
 const dbFile = path.join(process.cwd(), "data", "db.json");
 
-// Function to read users from db.json
+const dataDir = path.join(process.cwd(), "data");
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+if (!fs.existsSync(dbFile)) {
+  fs.writeFileSync(dbFile, JSON.stringify({ users: [] }, null, 2), "utf-8");
+}
+
 const readUsers = () => {
   try {
-    const data = JSON.parse(fs.readFileSync(dbFile, "utf-8"));
+    if (!fs.existsSync(dbFile)) {
+      return [];
+    }
+    const raw = fs.readFileSync(dbFile, "utf-8");
+    if (!raw.trim()) return [];
+
+    const data = JSON.parse(raw);
     return data.users || [];
   } catch (error) {
-    console.log("Error reading users:", error);
-    return []; // If file empty/corrupt, return empty array
+    console.error("Error reading users: ", error);
   }
 };
 
-// Function to write users back to db.json
 const writeUsers = (users) => {
-  const data = { users };
-  fs.writeFileSync(dbFile, JSON.stringify(data, null, 2));
+  try {
+    const data = { users };
+    fs.writeFileSync(dbFile, JSON.stringify(data, null, 2), "utf-8");
+  } catch (error) {
+    console.error("Error writing users: ", error);
+  }
 };
 
-// ✅ SIGNUP ROUTE
 router.post("/signUpAuth", async (req, res) => {
   const { name, email, password } = req.body;
 
   const users = readUsers();
 
-  // Check if user already exists
   const existingUser = users.find((user) => user.email === email);
   if (existingUser) {
     return res.status(400).json({ error: "User email already exists!" });
   }
 
   try {
-    // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = {
-      id: Date.now(), // unique ID
+      id: Date.now().toString(),
       name,
       email,
       password: hashedPassword,
+      tasks: [],
     };
 
-    // Save user
-    users.push(newUser);
-    writeUsers(users);
+    const updatedUsers = [...users, newUser]; // ✅ don't overwrite
+    writeUsers(updatedUsers);
 
     res.status(201).json({ message: "User Registered Successfully!" });
   } catch (err) {

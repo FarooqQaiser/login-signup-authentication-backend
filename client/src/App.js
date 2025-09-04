@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
-import Home from "./components/Home";
-import Login from "./components/Login";
-import SignUp from "./components/SignUp";
+import Home from "./components/Private Routes/Home";
+import Login from "./components/Public Routes/Login";
+import SignUp from "./components/Public Routes/SignUp";
 import { Bounce, ToastContainer } from "react-toastify";
-import PrivateRoute from "./components/PrivateRoutes";
-import PublicRoutes from "./components/PublicRoutes";
+import PrivateRoute from "./components/Private Routes/PrivateRoutes";
+import PublicRoutes from "./components/Public Routes/PublicRoutes";
 
 function App() {
   return (

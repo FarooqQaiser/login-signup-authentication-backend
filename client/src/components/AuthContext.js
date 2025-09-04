@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     const savedToken = localStorage.getItem("token");
 
     if (savedUser && savedToken) {
-      setUser(savedUser);
+      setUser(JSON.parse(savedUser));
       setToken(savedToken);
     }
   }, []);
@@ -20,14 +20,13 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setToken(jwt);
 
-    localStorage.setItem("user", user);
-    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", jwt);
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-
     localStorage.clear();
   };
 

@@ -6,9 +6,19 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-const JWT_SECRET_KEY = "mySecretJwtKey";
+const JWT_SECRET_KEY = process.env.JWT_SECRET || "dev-secret-change-me";
 
 const dbFile = path.join(process.cwd(), "data", "db.json");
+
+// Ensure data directory and db.json exist
+const dataDir = path.join(process.cwd(), "data");
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+if (!fs.existsSync(dbFile)) {
+  fs.writeFileSync(dbFile, JSON.stringify({ users: [] }, null, 2), "utf-8");
+}
+
 
 const readUsers = () => {
   try {
@@ -37,6 +47,7 @@ router.post("/loginAuth", async (req, res) => {
   }
 
   const user = {
+    id: userExists.id,
     name: userExists.name,
     email: userExists.email,
   };
