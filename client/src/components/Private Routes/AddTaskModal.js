@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { IoMdClose, IoMdCreate } from "react-icons/io";
 
 export default function AddTaskModal({
@@ -6,6 +7,14 @@ export default function AddTaskModal({
   taskName,
   setTaskName,
 }) {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className="bg-black bg-opacity-20 fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full">
       <div className="w-1/3 p-4 bg-white rounded-md shadow-lg">
@@ -25,6 +34,7 @@ export default function AddTaskModal({
             <IoMdCreate className="text-[#778899]" />
             <input
               required
+              ref={inputRef}
               type="text"
               value={taskName}
               placeholder="Task Name"

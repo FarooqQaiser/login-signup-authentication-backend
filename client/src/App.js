@@ -1,28 +1,36 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Layout from "./components/Layout";
-import Home from "./components/Private Routes/Home";
-import Login from "./components/Public Routes/Login";
-import SignUp from "./components/Public Routes/SignUp";
+import { lazy, Suspense } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Bounce, ToastContainer } from "react-toastify";
-import PrivateRoute from "./components/Private Routes/PrivateRoutes";
-import PublicRoutes from "./components/Public Routes/PublicRoutes";
+
+const Layout = lazy(() => import("./components/Layout"));
+const PublicRoutes = lazy(() =>
+  import("./components/Public Routes/PublicRoutes")
+);
+const SignUp = lazy(() => import("./components/Public Routes/SignUp"));
+const Login = lazy(() => import("./components/Public Routes/Login"));
+const PrivateRoutes = lazy(() =>
+  import("./components/Private Routes/PrivateRoutes")
+);
+const Home = lazy(() => import("./components/Private Routes/Home"));
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route element={<PublicRoutes />}>
-              <Route index element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
+      <Router>
+        <Suspense fallback={<div>Loading Page...</div>}>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route element={<PublicRoutes />}>
+                <Route index element={<SignUp />} />
+                <Route path="/login" element={<Login />} />
+              </Route>
+              <Route element={<PrivateRoutes />}>
+                <Route path="/home" element={<Home />} />
+              </Route>
             </Route>
-            <Route element={<PrivateRoute />}>
-              <Route path="/home" element={<Home />} />
-            </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </Suspense>
+      </Router>
       <ToastContainer
         position="top-right"
         autoClose={5000}

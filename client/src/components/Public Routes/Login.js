@@ -1,20 +1,32 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import Button from "../Button";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().password(6, "Password must be at 6 characters"),
+});
 
 export default function Login() {
   const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+  });
 
+  const onSubmit = async (data) => {
     try {
       const response = await fetch("http://localhost:5000/auth/loginAuth", {
         method: "POST",
@@ -22,14 +34,13 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
-          password: password,
+          email: data.email,
+          password: data.password,
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        // console.log(result);
         const user = result.user;
         const token = result.token;
         login(user, token);
@@ -49,31 +60,33 @@ export default function Login() {
     <div className="w-full mt-20 flex flex-col items-center justify-center gap-8">
       <h1 className="text-4xl font-semibold">Login</h1>
       <div className="w-1/3 border border-gray-200 p-5 rounded-lg shadow-sm">
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex items-center gap-5 p-2 border border-gray-200 rounded-md shadow-sm">
             <MdOutlineMailOutline className="text-[#778899]" />
             <input
               required
+              {...register("email")}
               type="email"
-              value={email}
-              name="email"
-              className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
               placeholder="Email"
-              onChange={(e) => setEmail(e.target.value)}
+              className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
             />
           </div>
+          {errors.email && (
+            <p className="text-red-500">{errors.email.message}</p>
+          )}
           <div className="flex items-center gap-5 p-2 border border-gray-200 rounded-md shadow-sm">
             <RiLockPasswordLine className="text-[#778899]" />
             <input
               required
+              {...register("password")}
               type="password"
-              value={password}
-              name="password"
-              className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
               placeholder="Password"
-              onChange={(e) => setPassword(e.target.value)}
+              className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
             />
           </div>
+          {errors.password && (
+            <p className="text-red-500">{errors.password.message}</p>
+          )}
           <Button
             name={"Login"}
             bgColor={"bg-[#0078F8]"}

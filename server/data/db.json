@@ -1,35 +1,11 @@
 {
   "users": [
     {
-      "id": "1756963991153",
+      "id": "1757068519619",
       "name": "John Doe",
       "email": "johndoe@abc.com",
-      "password": "$2b$10$iKmp6zbDfepT..iPPDiN6ONDaKKPHCExZd.35zxaWdTYhbbVSQfsG",
+      "password": "$2b$10$BEvqmkE2x3YaVDDIqKLs.Os6ftdRVC0h4SaUddF2dEBD0/35OEuNm",
       "tasks": []
-    },
-    {
-      "id": "1756964441471",
-      "name": "Muhammad Farooq Qaiser",
-      "email": "farooqqaiser679@gmail.com",
-      "password": "$2b$10$zZSQK6xCqYbz47LsnDm5ROMiAy0DAH6Bt2UUUxrAWHV4ZnowF3cM6",
-      "tasks": [
-        {
-          "taskId": "task1756965650644",
-          "taskName": "jog"
-        }
-      ]
-    },
-    {
-      "id": "1756965709051",
-      "name": "Jane Smith",
-      "email": "janesmith@abc.com",
-      "password": "$2b$10$7IqCTf.tl8Qa7hfLVqDo/eYpZNtscrjFeoOSJc8fhBc0chgqTtW56",
-      "tasks": [
-        {
-          "taskId": "task1756965737268",
-          "taskName": "lunch"
-        }
-      ]
     }
   ]
 }

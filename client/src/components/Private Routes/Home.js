@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { AuthContext } from "../AuthContext";
 import useFetchTasks from "../Custom Hooks/useFetchTasks";
 import useAddTask from "../Custom Hooks/useAddTask";
@@ -10,6 +10,7 @@ import DeleteTaskModal from "./DeleteTaskModal";
 import ClearAllDataModal from "./ClearAllDataModal";
 import useDeleteTask from "../Custom Hooks/useDeleteTask";
 import useClearData from "../Custom Hooks/useClearData";
+import ErrorBoundary from "../ErrorBoundary";
 
 export default function Home() {
   const { logout } = useContext(AuthContext);
@@ -18,8 +19,7 @@ export default function Home() {
     `http://localhost:5000/tasks/${user.id}`
   );
 
-  const tasks = data?.tasks || [];
-  // console.log("tasks: ", tasks);
+  const tasks = useMemo(() => data?.tasks || [], [data?.tasks]);
   const loading = isLoading;
   const isError = error?.message || null;
 
@@ -31,6 +31,7 @@ export default function Home() {
   const [deleteTaskIndex, setDeleteTaskIndex] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showClearAllDataModal, setShowClearAllDataModal] = useState(false);
+  const [isTasksSorted, setIsTasksSorted] = useState(false);
 
   const { addTask } = useAddTask({
     url: "http://localhost:5000/tasks/addTask",
@@ -77,6 +78,10 @@ export default function Home() {
   const handleLogoutButton = () => {
     logout();
   };
+
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort((a, b) => a.taskName.localeCompare(b.taskName));
+  }, [tasks]);
 
   return (
     <>
@@ -140,19 +145,29 @@ export default function Home() {
             >
               Logout
             </button>
+            <button
+              className="px-7 py-2 bg-[#12b000] text-white rounded-md hover:bg-white hover:text-[#12b000] border border-[#12b000]"
+              onClick={() => setIsTasksSorted(!isTasksSorted)}
+            >
+              {isTasksSorted ? "Show Tasks Original Order" : "Sort Tasks"}
+            </button>
           </div>
 
-          <TaskTable
-            loading={loading}
-            isError={isError}
-            tasks={tasks}
-            setEditedTaskName={setEditedTaskName}
-            setEditIndex={setEditIndex}
-            setShowEditTaskModal={setShowEditTaskModal}
-            handleDeleteTask={handleDeleteTask}
-            setShowDeleteModal={setShowDeleteModal}
-            setDeleteTaskIndex={setDeleteTaskIndex}
-          />
+          <ErrorBoundary>
+            <TaskTable
+              loading={loading}
+              isError={isError}
+              isTasksSorted={isTasksSorted}
+              sortedTasks={sortedTasks}
+              tasks={tasks}
+              setEditedTaskName={setEditedTaskName}
+              setEditIndex={setEditIndex}
+              setShowEditTaskModal={setShowEditTaskModal}
+              handleDeleteTask={handleDeleteTask}
+              setShowDeleteModal={setShowDeleteModal}
+              setDeleteTaskIndex={setDeleteTaskIndex}
+            />
+          </ErrorBoundary>
         </div>
       </div>
     </>

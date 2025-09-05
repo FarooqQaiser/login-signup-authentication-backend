@@ -3,6 +3,8 @@ import React from "react";
 export default function TaskTable({
   loading,
   isError,
+  isTasksSorted,
+  sortedTasks,
   tasks,
   setEditedTaskName,
   setEditIndex,
@@ -25,8 +27,8 @@ export default function TaskTable({
       </thead>
       <tbody>
         {tasks && tasks.length > 0 ? (
-          tasks.map((task, index) => (
-            <tr key={task.id || index} className="hover:bg-gray-50">
+          (isTasksSorted ? sortedTasks : tasks).map((task, index) => (
+            <tr key={task.taskId || index} className="hover:bg-gray-50">
               <td className="px-4 py-2 border border-gray-300 text-center">
                 {index + 1}
               </td>
@@ -37,7 +39,7 @@ export default function TaskTable({
                 <button
                   className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                   onClick={() => {
-                    setEditedTaskName(task.task);
+                    setEditedTaskName(task.taskName); // ✅ fixed: should be task.taskName
                     setEditIndex(task.taskId);
                     setShowEditTaskModal(true);
                   }}

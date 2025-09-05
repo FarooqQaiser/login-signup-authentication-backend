@@ -2,42 +2,55 @@ import { FaRegUser } from "react-icons/fa";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { MdOutlineMailOutline } from "react-icons/md";
 import Button from "../Button";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const signUpSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid Email"),
+    password: z.string().min(6, "Password must be at 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignUp() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPasswrod, setConfirmPasswrod] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (password === confirmPasswrod) {
-      try {
-        const response = await fetch("http://localhost:5000/auth/signUpAuth", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: name,
-            email: email,
-            password: password,
-          }),
-        });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(signUpSchema),
+  });
 
-        if (response.ok) {
-          const result = await response.json();
-          console.log(result);
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error(error);
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch("http://localhost:5000/auth/signUpAuth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result);
+        navigate("/login");
       }
-    } else {
-      alert("Passwords do not match!!");
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -50,55 +63,62 @@ export default function SignUp() {
       <div className="w-full mt-20 flex flex-col items-center justify-center gap-8">
         <h1 className="text-4xl font-semibold shadow-sm">Register</h1>
         <div className="w-1/3 border border-gray-200 p-5 rounded-lg shadow-lg">
-          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <div className="flex items-center gap-5 p-2 border border-gray-200 rounded-md shadow-sm">
               <FaRegUser className="text-[#778899]" />
               <input
                 required
+                {...register("name")}
                 type="text"
-                value={name}
-                name="name"
-                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
                 placeholder="Name"
-                onChange={(e) => setName(e.target.value)}
+                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
               />
             </div>
+            {errors.name && (
+              <p className="text-red-500">{errors.name.message}</p>
+            )}
             <div className="flex items-center gap-5 p-2 border border-gray-200 rounded-md shadow-sm">
               <MdOutlineMailOutline className="text-[#778899]" />
               <input
                 required
+                {...register("email")}
                 type="email"
-                value={email}
-                name="email"
-                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
                 placeholder="Email"
-                onChange={(e) => setEmail(e.target.value)}
+                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
               />
             </div>
+            {errors.email && (
+              <p className="text-red-500">{errors.email.message}</p>
+            )}
             <div className="flex items-center gap-5 p-2 border border-gray-200 rounded-md shadow-sm">
               <RiLockPasswordLine className="text-[#778899]" />
               <input
                 required
+                {...register("password")}
                 type="password"
-                value={password}
-                name="password"
-                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
                 placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
+                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
               />
             </div>
+            {errors.password && (
+              <p className="text-red-500">{errors.password.message}</p>
+            )}
             <div className="flex items-center gap-5 p-2 border border-gray-200 rounded-md shadow-sm">
               <RiLockPasswordLine className="text-[#778899]" />
               <input
                 required
+                {...register("confirmPassword")}
                 type="password"
-                value={confirmPasswrod}
-                name="password"
-                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
                 placeholder="Confirm Passwrod"
-                onChange={(e) => setConfirmPasswrod(e.target.value)}
+                className="text-[#778899] w-full h-8 outline-none focus:ring-0 focus:border-0"
               />
             </div>
+            {errors.confirmPassword && (
+              <p className="text-red-500">{errors.confirmPassword.message}</p>
+            )}
             <Button
               name={"Register"}
               bgColor={"bg-[#0078F8]"}
@@ -109,7 +129,6 @@ export default function SignUp() {
               hoverBgColor={"hover:bg-white"}
               hoverTextColor={"hover:text-[#0078F8]"}
               hoverBorderColor={"hover:border-[#0078F8]"}
-              // buttonFunction={}
             />
           </form>
           <div className="">
